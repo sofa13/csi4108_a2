@@ -56,12 +56,14 @@ public class main {
 		Map<Integer, Map<Integer, String>> cMap = new HashMap<>();
 
 		// Generate 10,000 plaintext
-		for (int i = 1; i <= 10000; i++) {
-			for (int j = 1; j <= 16; j++) {
-				Random rand = new Random();
-				int randomNum = rand.nextInt((15 - 0) + 1);
-				plaintext.put(j, Integer.toHexString(randomNum));
+		for (int i = 1; i <= 10; i++) {
+			String pString = String.format("%16s", Integer.toBinaryString(i)).replace(' ', '0');
+
+			for (int j = 0; j < pString.length(); j++) {
+				String c = "" + pString.charAt(j);
+				plaintext.put(j + 1, c);
 			}
+
 			pMap.put(i, plaintext);
 			plaintext = new HashMap<>();
 		}
@@ -75,21 +77,36 @@ public class main {
 			Map<Integer, String> text = pMap.get(i);
 			Map<Integer, String> subText = new HashMap<>();
 			Map<Integer, String> permText = new HashMap<>();
-			for (int a = 1; a <= 4; a++) {
-//				System.out.println("text");
-//				System.out.println(text);
+			for (int round = 1; round <= 4; round++) {
+				// System.out.println("text");
+				// System.out.println(text);
 				// sub
+				String subString = "";
+				String fullString = "";
 				for (int j = 1; j <= 16; j++) {
-					String preValue = text.get(j);
-					String newValue = sub.get(preValue);
-					subText.put(j, newValue);
+					if (j % 4 != 0) {
+						subString += text.get(j);
+					} else {
+						subString += text.get(j);
+						int foo = Integer.parseInt(subString, 2);
+						String hex = Integer.toHexString(foo);
+						String newHex = sub.get(hex);
+						foo = Integer.parseInt(newHex, 16);
+						String newBinary = String.format("%4s", Integer.toBinaryString(foo)).replace(' ', '0');
+						fullString += newBinary;
+						subString = "";
+					}
 				}
-				
-//				System.out.println("subText");
-//				System.out.println(subText);
+				for (int k = 0; k < fullString.length(); k++) {
+					String c = "" + fullString.charAt(k);
+					subText.put(k + 1, c);
+				}
+
+				// System.out.println("subText");
+				// System.out.println(subText);
 
 				// perm
-				if (a < 4) {
+				if (round < 4) {
 					for (int k = 1; k <= 16; k++) {
 						int newKey = perm.get(k);
 						permText.put(newKey, subText.get(k));
@@ -98,10 +115,10 @@ public class main {
 				} else {
 					permText = subText;
 				}
-				
-//				System.out.println("permText");
-//				System.out.println(permText);
-				
+
+				// System.out.println("permText");
+				// System.out.println(permText);
+
 				text = permText;
 				subText = new HashMap<>();
 				permText = new HashMap<>();
@@ -115,7 +132,8 @@ public class main {
 		// Print 10 known plaintext cipher text pairs
 		System.out.println("10 known plaintext cipher text pairs: ");
 		for (int i = 1; i <= 10; i++) {
-			System.out.println(pMap.get(i) + " => " + cMap.get(i));
+			 System.out.println(pMap.get(i) + " => " + cMap.get(i));
+//			System.out.println(pMap.get(i));
 		}
 
 	}
