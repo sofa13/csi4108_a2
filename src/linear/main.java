@@ -2,79 +2,25 @@ package linear;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
+import linear.Utils;
 
 public class main {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
+		Utils util = new Utils();	
+
 		System.out.println("Start linear cryptanalysis");
-
-		Map<String, String> sub = new HashMap<>();
-		Map<String, String> revsub = new HashMap<>();
-		Map<Integer, Integer> perm = new HashMap<>();
-
-		// S-box substitution
-		sub.put(Integer.toHexString(0), Integer.toHexString(14));
-		sub.put(Integer.toHexString(1), Integer.toHexString(4));
-		sub.put(Integer.toHexString(2), Integer.toHexString(13));
-		sub.put(Integer.toHexString(3), Integer.toHexString(1));
-		sub.put(Integer.toHexString(4), Integer.toHexString(2));
-		sub.put(Integer.toHexString(5), Integer.toHexString(15));
-		sub.put(Integer.toHexString(6), Integer.toHexString(11));
-		sub.put(Integer.toHexString(7), Integer.toHexString(8));
-		sub.put(Integer.toHexString(8), Integer.toHexString(3));
-		sub.put(Integer.toHexString(9), Integer.toHexString(10));
-		sub.put(Integer.toHexString(10), Integer.toHexString(6));
-		sub.put(Integer.toHexString(11), Integer.toHexString(13));
-		sub.put(Integer.toHexString(12), Integer.toHexString(5));
-		sub.put(Integer.toHexString(13), Integer.toHexString(9));
-		sub.put(Integer.toHexString(14), Integer.toHexString(0));
-		sub.put(Integer.toHexString(15), Integer.toHexString(7));
 		
-		revsub.put(Integer.toHexString(14), Integer.toHexString(0));
-		revsub.put(Integer.toHexString(4), Integer.toHexString(1));
-		revsub.put(Integer.toHexString(13), Integer.toHexString(2));
-		revsub.put(Integer.toHexString(1), Integer.toHexString(3));
-		revsub.put(Integer.toHexString(2), Integer.toHexString(4));
-		revsub.put(Integer.toHexString(15), Integer.toHexString(5));
-		revsub.put(Integer.toHexString(11), Integer.toHexString(6));
-		revsub.put(Integer.toHexString(8), Integer.toHexString(7));
-		revsub.put(Integer.toHexString(3), Integer.toHexString(8));
-		revsub.put(Integer.toHexString(10), Integer.toHexString(9));
-		revsub.put(Integer.toHexString(6), Integer.toHexString(10));
-		revsub.put(Integer.toHexString(13), Integer.toHexString(11));
-		revsub.put(Integer.toHexString(5), Integer.toHexString(12));
-		revsub.put(Integer.toHexString(9), Integer.toHexString(13));
-		revsub.put(Integer.toHexString(0), Integer.toHexString(14));
-		revsub.put(Integer.toHexString(7), Integer.toHexString(15));
-
-		// Permutations
-		perm.put(1, 1);
-		perm.put(2, 5);
-		perm.put(3, 9);
-		perm.put(4, 13);
-		perm.put(5, 2);
-		perm.put(6, 6);
-		perm.put(7, 10);
-		perm.put(8, 14);
-		perm.put(9, 3);
-		perm.put(10, 7);
-		perm.put(11, 11);
-		perm.put(12, 15);
-		perm.put(13, 4);
-		perm.put(14, 8);
-		perm.put(15, 12);
-		perm.put(16, 16);
-
 		// Maps for plaintext and ciphertext
 		Map<Integer, Map<Integer, String>> pMap = new HashMap<>();
 		Map<Integer, Map<Integer, String>> cMap = new HashMap<>();
 
 		// Generate 10,000 plaintext
+		int start = 22768;
 		for (int i = 1; i <= 10000; i++) {
 			Map<Integer, String> plaintext = new HashMap<>();
-			String pString = String.format("%16s", Integer.toBinaryString(i)).replace(' ', '0');
+			String pString = String.format("%16s", Integer.toBinaryString(start+i)).replace(' ', '0');
 
 			for (int j = 0; j < pString.length(); j++) {
 				String c = "" + pString.charAt(j);
@@ -93,7 +39,13 @@ public class main {
 			Map<Integer, String> text = pMap.get(i);
 			Map<Integer, String> subText = new HashMap<>();
 			Map<Integer, String> permText = new HashMap<>();
+			
 			for (int round = 1; round <= 4; round++) {
+				// Encrypt with key
+				for (int a = 1; a <= text.size(); a++) {
+					int newValue = (Integer.parseInt(text.get(a)) + util.key.get(a)) % 2;
+					text.put(a, "" + newValue);
+				}
 				// System.out.println("text");
 				// System.out.println(text);
 				// sub
@@ -106,7 +58,7 @@ public class main {
 						subString += text.get(j);
 						int foo = Integer.parseInt(subString, 2);
 						String hex = Integer.toHexString(foo);
-						String newHex = sub.get(hex);
+						String newHex = util.sub.get(hex);
 						foo = Integer.parseInt(newHex, 16);
 						String newBinary = String.format("%4s", Integer.toBinaryString(foo)).replace(' ', '0');
 						fullString += newBinary;
@@ -124,7 +76,7 @@ public class main {
 				// perm
 				if (round < 4) {
 					for (int k = 1; k <= 16; k++) {
-						int newKey = perm.get(k);
+						int newKey = util.perm.get(k);
 						permText.put(newKey, subText.get(k));
 
 					}
@@ -139,6 +91,12 @@ public class main {
 				subText = new HashMap<>();
 				permText = new HashMap<>();
 			}
+			
+			// Encrypt with key once more
+			for (int a = 1; a <= text.size(); a++) {
+				int newValue = (Integer.parseInt(text.get(a)) + util.key.get(a)) % 2;
+				text.put(a, "" + newValue);
+			}
 			cMap.put(i, text);
 		}
 
@@ -152,14 +110,14 @@ public class main {
 		}
 		
 		// Generate partial subkeys (256) [K5,5...K5,8 , K5,13...K5,16]
-		Map<Integer, Map<String, Double>> orderedSubkeys = new HashMap<>();
+		Map<Integer, Map<String, Integer>> orderedSubkeys = new HashMap<>();
 		int count = 0;
 		for (int i = 0; i < 16; i++) {
 			for (int j = 0; j < 16; j++) {
-				Map<String, Double> partialSubkeys = new HashMap<>();
+				Map<String, Integer> partialSubkeys = new HashMap<>();
 				String firstHex = Integer.toHexString(i);
 				String secondHex = Integer.toHexString(j);
-				partialSubkeys.put(firstHex+secondHex, 0.0000);
+				partialSubkeys.put(firstHex+secondHex, 0);
 				orderedSubkeys.put(count, partialSubkeys);
 				count++;
 			}
@@ -174,7 +132,8 @@ public class main {
 		// Go through all ciphertext plaintext pairs
 		for (int i = 1; i <= cMap.size(); i++) {
 			Map<Integer, String> ciphertext = cMap.get(i);
-//			Map<Integer, String> decryptext = new HashMap<>();
+			Map<Integer, String> plaintext = pMap.get(i);
+			
 			for (int j = 0; j < orderedSubkeys.size(); j++) {
 				//put ciphertext through key
 				String subkey = orderedSubkeys.get(j).keySet().toArray()[0].toString();
@@ -199,12 +158,48 @@ public class main {
 				}
 				
 				// Put partial decrypt ciphertext through reverse S-boxes
+				Map<Integer, String> text = ciphertext;
+				Map<Integer, String> subText = new HashMap<>();
+				String subString = "";
+				String fullString = "";
+				for (int k = 1; k <= 16; k++) {
+					if (k % 4 != 0) {
+						subString += text.get(k);
+					} else {
+						subString += text.get(k);
+						int foo2 = Integer.parseInt(subString, 2);
+						String hex = Integer.toHexString(foo2);
+						String newHex = util.revsub.get(hex);
+						foo2 = Integer.parseInt(newHex, 16);
+						String newBinary = String.format("%4s", Integer.toBinaryString(foo2)).replace(' ', '0');
+						fullString += newBinary;
+						subString = "";
+					}
+				}
+				for (int k = 0; k < fullString.length(); k++) {
+					String c = "" + fullString.charAt(k);
+					subText.put(k + 1, c);
+				}
 				
 				// XOR U4,6 U4,8 U4,14 U4,16 P5 P7 P8
+				int outcome = (Integer.parseInt(subText.get(6)) + Integer.parseInt(subText.get(8)) + Integer.parseInt(subText.get(14))
+							+ Integer.parseInt(subText.get(16)) + Integer.parseInt(subText.get(8)) + Integer.parseInt(plaintext.get(5))
+							+ Integer.parseInt(plaintext.get(7) + Integer.parseInt(plaintext.get(8)))) % 2;
 				
 				// If zero increment count for subkey
+				if (outcome == 0) {
+					int count2 = orderedSubkeys.get(j).get(firstkeyHex+secondkeyHex);
+					count2 += 1;
+					orderedSubkeys.get(j).put(firstkeyHex+secondkeyHex, count2);
+				}
 			}
 		}
+		
+		// Print resulting count table
+		System.out.println("Resulting count table: ");
+		for (int i = 0; i < orderedSubkeys.size(); i++) {
+			 System.out.println(orderedSubkeys.get(i));
+		}	
 
 	}
 
