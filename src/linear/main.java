@@ -8,19 +8,19 @@ public class main {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		Utils util = new Utils();	
+		Utils util = new Utils();
 
 		System.out.println("Start linear cryptanalysis");
-		
+
 		// Maps for plaintext and ciphertext
 		Map<Integer, Map<Integer, Integer>> pMap = new HashMap<>();
 		Map<Integer, Map<Integer, Integer>> cMap = new HashMap<>();
 
 		// Generate 10,000 plaintext
-		int start = 22768;
+		// int start = 22768;
 		for (int i = 1; i <= 10000; i++) {
 			Map<Integer, Integer> plaintext = new HashMap<>();
-			String pString = String.format("%16s", Integer.toBinaryString(start+i)).replace(' ', '0');
+			String pString = String.format("%16s", Integer.toBinaryString(i * 3)).replace(' ', '0');
 
 			for (int j = 0; j < pString.length(); j++) {
 				plaintext.put(j + 1, Integer.parseInt("" + pString.charAt(j)));
@@ -35,14 +35,15 @@ public class main {
 		// Generate ciphertext for all plaintext
 
 		for (int i = 1; i <= pMap.size(); i++) {
-			Map<Integer, Integer> text = pMap.get(i);
+			Map<Integer, Integer> text = new HashMap<>();
+			text.putAll(pMap.get(i));
 			Map<Integer, Integer> subText = new HashMap<>();
 			Map<Integer, Integer> permText = new HashMap<>();
-			
+
 			for (int round = 1; round <= 4; round++) {
 				// Encrypt with key
 				for (int a = 1; a <= text.size(); a++) {
-					int newValue = (text.get(a) + util.key.get(a)) % 2;
+					int newValue = (text.get(a) + util.key.get(round).get(a)) % 2;
 					text.put(a, newValue);
 				}
 
@@ -54,11 +55,9 @@ public class main {
 						subString += text.get(j);
 					} else {
 						subString += text.get(j);
-						int foo = Integer.parseInt(subString, 2);
-						String hex = Integer.toHexString(foo);
+						String hex = Integer.toHexString(Integer.parseInt(subString, 2));
 						String newHex = util.sub.get(hex);
-						foo = Integer.parseInt(newHex, 16);
-						String newBinary = String.format("%4s", Integer.toBinaryString(foo)).replace(' ', '0');
+						String newBinary = String.format("%4s", Integer.toBinaryString(Integer.parseInt(newHex, 16))).replace(' ', '0');
 						fullString += newBinary;
 						subString = "";
 					}
@@ -82,10 +81,10 @@ public class main {
 				subText = new HashMap<>();
 				permText = new HashMap<>();
 			}
-			
+
 			// Encrypt with key once more
 			for (int a = 1; a <= text.size(); a++) {
-				int newValue = (text.get(a) + util.key.get(a)) % 2;
+				int newValue = (text.get(a) + util.key.get(5).get(a)) % 2;
 				text.put(a, newValue);
 			}
 			cMap.put(i, text);
@@ -97,9 +96,10 @@ public class main {
 		// Print 10 known plaintext cipher text pairs
 		System.out.println("10 known plaintext cipher text pairs: ");
 		for (int i = 1; i <= 10; i++) {
-			 System.out.println(pMap.get(i) + " => " + cMap.get(i));
+			System.out.println(pMap.get(i) + " => " + cMap.get(i));
 		}
-		
+		System.out.println("...");
+
 		// Generate partial subkeys (256) [K5,5...K5,8 , K5,13...K5,16]
 		Map<Integer, Map<String, Integer>> orderedSubkeys = new HashMap<>();
 		int count = 0;
@@ -108,46 +108,48 @@ public class main {
 				Map<String, Integer> partialSubkeys = new HashMap<>();
 				String firstHex = Integer.toHexString(i);
 				String secondHex = Integer.toHexString(j);
-				partialSubkeys.put(firstHex+secondHex, 0);
+				partialSubkeys.put(firstHex + secondHex, 0);
 				orderedSubkeys.put(count, partialSubkeys);
 				count++;
 			}
 		}
-		
+
 		// Print 10 known partial subkeys
 		System.out.println("10 known partial subkeys: ");
 		for (int i = 1; i <= 20; i++) {
-			 System.out.println(orderedSubkeys.get(i).keySet().toArray()[0]);
-		}		
-		
+			System.out.println(orderedSubkeys.get(i).keySet().toArray()[0]);
+		}
+
 		// Go through all ciphertext plaintext pairs
 		for (int i = 1; i <= cMap.size(); i++) {
-			Map<Integer, Integer> ciphertext = cMap.get(i);
-			Map<Integer, Integer> plaintext = pMap.get(i);
-			
+			Map<Integer, Integer> ciphertext = new HashMap<>();
+			ciphertext.putAll(cMap.get(i));
+			Map<Integer, Integer> plaintext = new HashMap<>();
+			plaintext.putAll(pMap.get(i));
+
 			for (int j = 0; j < orderedSubkeys.size(); j++) {
-				//put ciphertext through key
+				// put ciphertext through key
 				String subkey = orderedSubkeys.get(j).keySet().toArray()[0].toString();
 				String firstkeyHex = "" + subkey.charAt(0);
 				String secondkeyHex = "" + subkey.charAt(1);
-				
+
 				int foo = Integer.parseInt(firstkeyHex, 16);
 				String firstkeyBin = String.format("%4s", Integer.toBinaryString(foo)).replace(' ', '0');
 				foo = Integer.parseInt(secondkeyHex, 16);
 				String secondkeyBin = String.format("%4s", Integer.toBinaryString(foo)).replace(' ', '0');
-				
+
 				for (int it = 0; it < 4; it++) {
-					int preValue = ciphertext.get(it+5);
+					int preValue = ciphertext.get(it + 5);
 					int xord = (preValue + Integer.parseInt("" + firstkeyBin.charAt(it))) % 2;
-					ciphertext.put(it+5, xord);
+					ciphertext.put(it + 5, xord);
 				}
-				
+
 				for (int it = 0; it < 4; it++) {
-					int preValue = ciphertext.get(it+13);
+					int preValue = ciphertext.get(it + 13);
 					int xord = (preValue + Integer.parseInt("" + secondkeyBin.charAt(it))) % 2;
-					ciphertext.put(it+13, xord);
+					ciphertext.put(it + 13, xord);
 				}
-				
+
 				// Put partial decrypt ciphertext through reverse S-boxes
 				Map<Integer, Integer> text = ciphertext;
 				Map<Integer, Integer> subText = new HashMap<>();
@@ -170,26 +172,25 @@ public class main {
 				for (int k = 0; k < fullString.length(); k++) {
 					subText.put(k + 1, Integer.parseInt("" + fullString.charAt(k)));
 				}
-				
+
 				// XOR U4,6 U4,8 U4,14 U4,16 P5 P7 P8
-				int outcome = ( subText.get(6) + subText.get(8) + subText.get(14) + subText.get(16) + subText.get(16) 
-									+ plaintext.get(5) + plaintext.get(7) + plaintext.get(8)
-										) % 2;
-				
+				int outcome = (subText.get(6) + subText.get(8) + subText.get(14) + subText.get(16) + subText.get(16)
+						+ plaintext.get(5) + plaintext.get(7) + plaintext.get(8)) % 2;
+
 				// If zero increment count for subkey
 				if (outcome == 0) {
-					int count2 = orderedSubkeys.get(j).get(firstkeyHex+secondkeyHex);
+					int count2 = orderedSubkeys.get(j).get(firstkeyHex + secondkeyHex);
 					count2 += 1;
-					orderedSubkeys.get(j).put(firstkeyHex+secondkeyHex, count2);
+					orderedSubkeys.get(j).put(firstkeyHex + secondkeyHex, count2);
 				}
 			}
 		}
-		
+
 		// Print resulting count table
 		System.out.println("Resulting count table: ");
 		for (int i = 0; i < orderedSubkeys.size(); i++) {
-			 System.out.println(orderedSubkeys.get(i));
-		}	
+			System.out.println(orderedSubkeys.get(i));
+		}
 
 	}
 
