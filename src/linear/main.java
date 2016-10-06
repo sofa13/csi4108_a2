@@ -134,16 +134,16 @@ public class main {
 						temp += ciphertext.charAt(it);
 					}
 				}
-				ciphertext = temp;
+//				ciphertext = temp;
 
 				// Put partial decrypt ciphertext through reverse S-boxes
 				String subString = "";
 				String subText = "";
 				for (int k = 1; k <= 16; k++) {
 					if (k % 4 != 0) {
-						subString += ciphertext.charAt(k-1);
+						subString += temp.charAt(k-1);
 					} else {
-						subString += ciphertext.charAt(k-1);
+						subString += temp.charAt(k-1);
 						String hex = Integer.toHexString(Integer.parseInt(subString, 2));
 						String newHex = util.revsub.get(hex);
 						String newBinary = String.format("%4s", Integer.toBinaryString(Integer.parseInt(newHex, 16))).replace(' ', '0');
