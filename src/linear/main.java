@@ -153,17 +153,20 @@ public class main {
 				}
 
 				// XOR U4,6 U4,8 U4,14 U4,16 P5 P7 P8
-				int outcome = (Integer.parseInt("" + subText.charAt(6-1)) + Integer.parseInt("" + subText.charAt(8-1)) 
-						+ Integer.parseInt("" + subText.charAt(14-1)) + Integer.parseInt("" + subText.charAt(16-1)) 
-						+ Integer.parseInt("" + plaintext.charAt(5-1)) + Integer.parseInt("" + plaintext.charAt(7-1)) 
-						+ Integer.parseInt("" + plaintext.charAt(8-1)) 
-						) % 2;
+				int u6 = Integer.parseInt("" + subText.charAt(6-1));
+				int u8 = Integer.parseInt("" + subText.charAt(8-1));
+				int u14 = Integer.parseInt("" + subText.charAt(14-1));
+				int u16 = Integer.parseInt("" + subText.charAt(16-1));
+				int p5 = Integer.parseInt("" + plaintext.charAt(5-1));
+				int p7 = Integer.parseInt("" + plaintext.charAt(7-1));
+				int p8 = Integer.parseInt("" + plaintext.charAt(8-1));
+				int outcome = (u6 + u8 + u14 + u16 + p5 + p7 + p8) % 2;
 
 				// If zero, increment count for subkey
 				if (outcome == 0) {
 					int count = orderedSubkeys.get(j).get(subkey);
 					count += 1;
-					orderedSubkeys.get(j).put(firstkeyHex + secondkeyHex, count);
+					orderedSubkeys.get(j).put(subkey, count);
 				}
 			}
 		}
