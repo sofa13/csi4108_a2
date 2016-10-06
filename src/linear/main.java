@@ -13,18 +13,17 @@ public class main {
 		System.out.println("Start linear cryptanalysis");
 		
 		// Maps for plaintext and ciphertext
-		Map<Integer, Map<Integer, String>> pMap = new HashMap<>();
-		Map<Integer, Map<Integer, String>> cMap = new HashMap<>();
+		Map<Integer, Map<Integer, Integer>> pMap = new HashMap<>();
+		Map<Integer, Map<Integer, Integer>> cMap = new HashMap<>();
 
 		// Generate 10,000 plaintext
 		int start = 22768;
 		for (int i = 1; i <= 10000; i++) {
-			Map<Integer, String> plaintext = new HashMap<>();
+			Map<Integer, Integer> plaintext = new HashMap<>();
 			String pString = String.format("%16s", Integer.toBinaryString(start+i)).replace(' ', '0');
 
 			for (int j = 0; j < pString.length(); j++) {
-				String c = "" + pString.charAt(j);
-				plaintext.put(j + 1, c);
+				plaintext.put(j + 1, Integer.parseInt("" + pString.charAt(j)));
 			}
 
 			pMap.put(i, plaintext);
@@ -36,18 +35,17 @@ public class main {
 		// Generate ciphertext for all plaintext
 
 		for (int i = 1; i <= pMap.size(); i++) {
-			Map<Integer, String> text = pMap.get(i);
-			Map<Integer, String> subText = new HashMap<>();
-			Map<Integer, String> permText = new HashMap<>();
+			Map<Integer, Integer> text = pMap.get(i);
+			Map<Integer, Integer> subText = new HashMap<>();
+			Map<Integer, Integer> permText = new HashMap<>();
 			
 			for (int round = 1; round <= 4; round++) {
 				// Encrypt with key
 				for (int a = 1; a <= text.size(); a++) {
-					int newValue = (Integer.parseInt(text.get(a)) + util.key.get(a)) % 2;
-					text.put(a, "" + newValue);
+					int newValue = (text.get(a) + util.key.get(a)) % 2;
+					text.put(a, newValue);
 				}
-				// System.out.println("text");
-				// System.out.println(text);
+
 				// sub
 				String subString = "";
 				String fullString = "";
@@ -66,12 +64,8 @@ public class main {
 					}
 				}
 				for (int k = 0; k < fullString.length(); k++) {
-					String c = "" + fullString.charAt(k);
-					subText.put(k + 1, c);
+					subText.put(k + 1, Integer.parseInt("" + fullString.charAt(k)));
 				}
-
-				// System.out.println("subText");
-				// System.out.println(subText);
 
 				// perm
 				if (round < 4) {
@@ -84,9 +78,6 @@ public class main {
 					permText = subText;
 				}
 
-				// System.out.println("permText");
-				// System.out.println(permText);
-
 				text = permText;
 				subText = new HashMap<>();
 				permText = new HashMap<>();
@@ -94,8 +85,8 @@ public class main {
 			
 			// Encrypt with key once more
 			for (int a = 1; a <= text.size(); a++) {
-				int newValue = (Integer.parseInt(text.get(a)) + util.key.get(a)) % 2;
-				text.put(a, "" + newValue);
+				int newValue = (text.get(a) + util.key.get(a)) % 2;
+				text.put(a, newValue);
 			}
 			cMap.put(i, text);
 		}
@@ -131,8 +122,8 @@ public class main {
 		
 		// Go through all ciphertext plaintext pairs
 		for (int i = 1; i <= cMap.size(); i++) {
-			Map<Integer, String> ciphertext = cMap.get(i);
-			Map<Integer, String> plaintext = pMap.get(i);
+			Map<Integer, Integer> ciphertext = cMap.get(i);
+			Map<Integer, Integer> plaintext = pMap.get(i);
 			
 			for (int j = 0; j < orderedSubkeys.size(); j++) {
 				//put ciphertext through key
@@ -146,20 +137,20 @@ public class main {
 				String secondkeyBin = String.format("%4s", Integer.toBinaryString(foo)).replace(' ', '0');
 				
 				for (int it = 0; it < 4; it++) {
-					int preValue = Integer.parseInt(ciphertext.get(it+5));
+					int preValue = ciphertext.get(it+5);
 					int xord = (preValue + Integer.parseInt("" + firstkeyBin.charAt(it))) % 2;
-					ciphertext.put(it+5, "" + xord);
+					ciphertext.put(it+5, xord);
 				}
 				
 				for (int it = 0; it < 4; it++) {
-					int preValue = Integer.parseInt(ciphertext.get(it+13));
+					int preValue = ciphertext.get(it+13);
 					int xord = (preValue + Integer.parseInt("" + secondkeyBin.charAt(it))) % 2;
-					ciphertext.put(it+13, "" + xord);
+					ciphertext.put(it+13, xord);
 				}
 				
 				// Put partial decrypt ciphertext through reverse S-boxes
-				Map<Integer, String> text = ciphertext;
-				Map<Integer, String> subText = new HashMap<>();
+				Map<Integer, Integer> text = ciphertext;
+				Map<Integer, Integer> subText = new HashMap<>();
 				String subString = "";
 				String fullString = "";
 				for (int k = 1; k <= 16; k++) {
@@ -177,14 +168,13 @@ public class main {
 					}
 				}
 				for (int k = 0; k < fullString.length(); k++) {
-					String c = "" + fullString.charAt(k);
-					subText.put(k + 1, c);
+					subText.put(k + 1, Integer.parseInt("" + fullString.charAt(k)));
 				}
 				
 				// XOR U4,6 U4,8 U4,14 U4,16 P5 P7 P8
-				int outcome = (Integer.parseInt(subText.get(6)) + Integer.parseInt(subText.get(8)) + Integer.parseInt(subText.get(14))
-							+ Integer.parseInt(subText.get(16)) + Integer.parseInt(subText.get(8)) + Integer.parseInt(plaintext.get(5))
-							+ Integer.parseInt(plaintext.get(7) + Integer.parseInt(plaintext.get(8)))) % 2;
+				int outcome = ( subText.get(6) + subText.get(8) + subText.get(14) + subText.get(16) + subText.get(16) 
+									+ plaintext.get(5) + plaintext.get(7) + plaintext.get(8)
+										) % 2;
 				
 				// If zero increment count for subkey
 				if (outcome == 0) {
