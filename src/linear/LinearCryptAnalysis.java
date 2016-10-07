@@ -1,6 +1,6 @@
 /* CSI 4108 - Cryptography
  * Assignment #2
- * Sophie Le PAge - 5992312
+ * Sophie Le Page - 5992312
  * */
 
 package linear;
