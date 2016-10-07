@@ -1,3 +1,8 @@
+/* CSI 4108 - Cryptography
+ * Assignment #2
+ * Sophie Le PAge - 5992312
+ * */
+
 package linear;
 
 import java.util.HashMap;
