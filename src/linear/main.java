@@ -172,9 +172,16 @@ public class main {
 		}
 
 		// Print resulting count table
-		System.out.println("Resulting count table: ");
+		System.out.println("Resulting table: ");
+		System.out.println("partial subkey, count, bias");
 		for (int i = 0; i < orderedSubkeys.size(); i++) {
-			System.out.println(orderedSubkeys.get(i));
+			String subkey = orderedSubkeys.get(i).keySet().toArray()[0].toString();
+			int count = orderedSubkeys.get(i).get(subkey);
+			double dCount = ((double)(Math.abs(count-5000))/10000);
+			System.out.print(orderedSubkeys.get(i).keySet().toArray()[0].toString() + ", ");
+			System.out.print(count + ", ");
+			System.out.format("%.4f", dCount);
+			System.out.println();
 		}
 
 	}
