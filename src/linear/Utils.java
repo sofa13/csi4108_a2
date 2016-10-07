@@ -4,12 +4,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Utils {
+	
 	Map<Integer, Map<Integer, Integer>> key = new HashMap<>();
 	Map<String, String> sub = new HashMap<>();
 	Map<String, String> revsub = new HashMap<>();
 	Map<Integer, Integer> perm = new HashMap<>();
+	
 	public Utils() {
-		// TODO Auto-generated constructor stub
+		
 		key = new HashMap<>();
 		sub = new HashMap<>();
 		revsub = new HashMap<>();
@@ -26,10 +28,10 @@ public class Utils {
 		key1.put(2, 0);
 		key1.put(3, 1);
 		key1.put(4, 0);
-		key1.put(5, 1);	// 1
+		key1.put(5, 1);
 		key1.put(6, 0);
-		key1.put(7, 1); // 1
-		key1.put(8, 0); // 0
+		key1.put(7, 1);
+		key1.put(8, 0);
 		key1.put(9, 1);
 		key1.put(10, 0);
 		key1.put(11, 1);
@@ -44,7 +46,7 @@ public class Utils {
 		key2.put(3, 1);
 		key2.put(4, 0);
 		key2.put(5, 1);
-		key2.put(6, 0); // 0
+		key2.put(6, 0);
 		key2.put(7, 1);
 		key2.put(8, 0);
 		key2.put(9, 0);
@@ -61,7 +63,7 @@ public class Utils {
 		key3.put(3, 1);
 		key3.put(4, 0);
 		key3.put(5, 0);
-		key3.put(6, 1); // 1
+		key3.put(6, 1);
 		key3.put(7, 1);
 		key3.put(8, 1);
 		key3.put(9, 1);
@@ -69,26 +71,26 @@ public class Utils {
 		key3.put(11, 1);
 		key3.put(12, 0);
 		key3.put(13, 1);
-		key3.put(14, 0); // 0
+		key3.put(14, 0);
 		key3.put(15, 0);
 		key3.put(16, 1);
 		
 		key4.put(1, 0);
 		key4.put(2, 1);
 		key4.put(3, 0);
-		key4.put(4, 1); // 1
+		key4.put(4, 1);
 		key4.put(5, 0);
 		key4.put(6, 1);
 		key4.put(7, 0);
-		key4.put(8, 1); // 1
+		key4.put(8, 1);
 		key4.put(9, 0);
 		key4.put(10, 1);
 		key4.put(11, 0);
 		key4.put(12, 1);
 		key4.put(13, 0);
-		key4.put(14, 1); // 1
+		key4.put(14, 1);
 		key4.put(15, 0);
-		key4.put(16, 1); // 1
+		key4.put(16, 1);
 		
 		key5.put(1, 0);
 		key5.put(2, 1);
@@ -165,7 +167,6 @@ public class Utils {
 		perm.put(14, 8);
 		perm.put(15, 12);
 		perm.put(16, 16);
-
+		
 	}
-
 }

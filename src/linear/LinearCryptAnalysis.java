@@ -4,20 +4,20 @@ import java.util.HashMap;
 import java.util.Map;
 import linear.Utils;
 
-public class main {
+public class LinearCryptAnalysis {
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		Utils util = new Utils();
-
 		System.out.println("Start linear cryptanalysis");
+		System.out.println();
 
+		// Generates keys and mapping for substitution and permutation
+		Utils util = new Utils();
+		
 		// Maps for plaintext and ciphertext
 		Map<Integer, String> pMap = new HashMap<>();
 		Map<Integer, String> cMap = new HashMap<>();
 
 		// Generate 10,000 plaintext
-		// int start = 22768;
 		for (int i = 0; i < 10000; i++) {
 			String plaintext = String.format("%16s", Integer.toBinaryString(i * 3)).replace(' ', '0');
 			pMap.put(i, plaintext);
@@ -27,7 +27,6 @@ public class main {
 		System.out.println("Number of plaintext generated: " + pMap.size());
 
 		// Generate ciphertext for all plaintext
-
 		for (int i = 0; i < pMap.size(); i++) {
 			String text = pMap.get(i);
 
@@ -79,15 +78,18 @@ public class main {
 
 		// Print ciphertext table lookup size
 		System.out.println("Number of ciphertext generated: " + cMap.size());
+		System.out.println();
 
 		// Print 10 known plaintext cipher text pairs
-		System.out.println("10 known plaintext cipher text pairs: ");
+		System.out.println("Example of 10 known plaintext cipher text pairs: ");
 		for (int i = 0; i < 10; i++) {
 			System.out.println(pMap.get(i) + " => " + cMap.get(i));
 		}
-		System.out.println("...");
+		System.out.println();
+		System.out.println("Computing results...");
+		System.out.println();
 
-		// Generate partial subkeys (256) [K5,5...K5,8 , K5,13...K5,16]
+		// Generate 256 partial subkeys [K5,5...K5,8 , K5,13...K5,16]
 		Map<Integer, Map<String, Integer>> orderedSubkeys = new HashMap<>();
 		int index = 0;
 		for (int i = 0; i < 16; i++) {
@@ -101,20 +103,15 @@ public class main {
 			}
 		}
 
-		// Print 10 known partial subkeys
-		System.out.println("10 known partial subkeys: ");
-		for (int i = 0; i < 10; i++) {
-			System.out.println(orderedSubkeys.get(i).keySet().toArray()[0]);
-		}
-		System.out.println("...");
-
 		// Go through all ciphertext plaintext pairs
 		for (int i = 0; i < cMap.size(); i++) {
 			String ciphertext = cMap.get(i);
 			String plaintext = pMap.get(i);
 
+			// For each ciphertext/plaintext pair, try all possible subkeys
 			for (int j = 0; j < orderedSubkeys.size(); j++) {
-				// put ciphertext through key
+				
+				// Put ciphertext through key
 				String subkey = orderedSubkeys.get(j).keySet().toArray()[0].toString();
 				String firstkeyHex = "" + subkey.charAt(0);
 				String secondkeyHex = "" + subkey.charAt(1);
@@ -134,7 +131,6 @@ public class main {
 						temp += ciphertext.charAt(it);
 					}
 				}
-//				ciphertext = temp;
 
 				// Put partial decrypt ciphertext through reverse S-boxes
 				String subString = "";
@@ -183,7 +179,5 @@ public class main {
 			System.out.format("%.4f", dCount);
 			System.out.println();
 		}
-
 	}
-
 }
